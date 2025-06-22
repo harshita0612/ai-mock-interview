@@ -85,7 +85,7 @@ export const RecordAnswer = ({
 
       setAiResult(aiResult);
     } else {
-      setUserAnswer(""); // ✅ Clear previous transcript before starting
+      setUserAnswer(""); 
       startSpeechToText();
     }
   };
@@ -259,7 +259,7 @@ export const RecordAnswer = ({
             )
           }
           onClick={() => setOpen(!open)}
-          disabled={!aiResult}
+          disbaled={!aiResult}
         />
       </div>
 
