@@ -85,18 +85,14 @@ export const RecordAnswer = ({
 
       setAiResult(aiResult);
     } else {
+      setUserAnswer(""); // ✅ Clear previous transcript before starting
       startSpeechToText();
     }
   };
 
   const cleanJsonResponse = (responseText: string) => {
-    // Step 1: Trim any surrounding whitespace
     let cleanText = responseText.trim();
-
-    // Step 2: Remove any occurrences of "json" or code block symbols (``` or `)
     cleanText = cleanText.replace(/(json|```|`)/g, "");
-
-    // Step 3: Parse the clean JSON text into an array of objects
     try {
       return JSON.parse(cleanText);
     } catch (error) {
@@ -120,7 +116,6 @@ export const RecordAnswer = ({
 
     try {
       const aiResult = await chatSession.sendMessage(prompt);
-
       const parsedResult: AIResponse = cleanJsonResponse(
         aiResult.response.text()
       );
@@ -151,8 +146,6 @@ export const RecordAnswer = ({
 
     const currentQuestion = question.question;
     try {
-      // query the firbase to check if the user answer already exists for this question
-
       const userAnswerQuery = query(
         collection(db, "userAnswers"),
         where("userId", "==", userId),
@@ -161,7 +154,6 @@ export const RecordAnswer = ({
 
       const querySnap = await getDocs(userAnswerQuery);
 
-      // if the user already answerd the question dont save it again
       if (!querySnap.empty) {
         console.log("Query Snap Size", querySnap.size);
         toast.info("Already Answered", {
@@ -169,8 +161,6 @@ export const RecordAnswer = ({
         });
         return;
       } else {
-        // save the user answer
-
         await addDoc(collection(db, "userAnswers"), {
           mockIdRef: interviewId,
           question: question.question,
@@ -199,17 +189,16 @@ export const RecordAnswer = ({
   };
 
   useEffect(() => {
-    const combineTranscripts = results
-      .filter((result): result is ResultType => typeof result !== "string")
-      .map((result) => result.transcript)
-      .join(" ");
+    if (!results || results.length === 0) return;
 
-    setUserAnswer(combineTranscripts);
+    const lastResult = results[results.length - 1];
+    if (typeof lastResult !== "string") {
+      setUserAnswer(lastResult.transcript); // ✅ Only use the latest result
+    }
   }, [results]);
 
   return (
     <div className="w-full flex flex-col items-center gap-8 mt-4">
-      {/* save modal */}
       <SaveModal
         isOpen={open}
         onClose={() => setOpen(false)}
