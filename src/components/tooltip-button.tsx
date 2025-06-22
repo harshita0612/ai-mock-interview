@@ -25,7 +25,7 @@ interface TooltipButtonProps {
   buttonVariant?: ButtonVariant;
   buttonClassName?: string;
   delay?: number;
-  disabled?: boolean;
+  disbaled?: boolean;
   loading?: boolean;
 }
 
